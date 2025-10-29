@@ -1,0 +1,35 @@
+-- NETMAG PARAMETRIC SCHEMA
+-- NETwork MAGnitude table schema
+-- Very lightly modified to conform with SQLite syntax (i.e., removed AT TIME ZONE 'UTC' for LDDATE)
+-- author: Renate Hartog
+-- editor: Nathan T. Stevens
+-- org: PNSN / AQMS-SWG
+-- license: CC-1.0
+
+ CREATE TABLE NETMAG 
+ (	MAGID BIGINT, 
+	ORID BIGINT NOT NULL , 
+	COMMID BIGINT, 
+	MAGNITUDE DOUBLE PRECISION NOT NULL , 
+	MAGTYPE VARCHAR(6) NOT NULL , 
+	AUTH VARCHAR(15) NOT NULL , 
+	SUBSOURCE VARCHAR(8), 
+	MAGALGO VARCHAR(15), 
+	NSTA INTEGER, 
+	UNCERTAINTY DOUBLE PRECISION, 
+	GAP DOUBLE PRECISION, 
+	DISTANCE DOUBLE PRECISION, 
+	QUALITY DOUBLE PRECISION, 
+	RFLAG VARCHAR(2), 
+	LDDATE TIMESTAMP DEFAULT (CURRENT_TIMESTAMP), 
+	NOBS INTEGER,
+	 CONSTRAINT NETMAG01 CHECK (magnitude >= -10.0 and magnitude <= 10.0) , 
+	 CONSTRAINT NETMAG02 CHECK (magtype in ('p','a','b','e','l',
+ 	'l1','l2','l3','lg','c','s','w','z','B','un','d','h','n','dl','lr')) , 
+	 CONSTRAINT NETMAG03 CHECK (nsta >= 0) , 
+	 CONSTRAINT NETMAG04 CHECK (uncertainty >= 0.0) , 
+	 CONSTRAINT NETMAG05 CHECK (quality >= 0.0 and quality <=1.0) , 
+	 CONSTRAINT NETMAG06 CHECK (magid > 0) , 
+	 CONSTRAINT NETMAG07 CHECK (rflag in ('a','h','f','A','H','F')) , 
+	 CONSTRAINT MAGKEY01 PRIMARY KEY (MAGID) 
+ ); 

@@ -1,0 +1,11 @@
+name: pg_anss_lite
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python
+  - sqlalchemy
+  - pandas
+  - psycopg2-binary
+  - obspy
+  - tqdm
