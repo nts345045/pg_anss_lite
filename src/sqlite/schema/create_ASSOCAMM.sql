@@ -1,0 +1,31 @@
+-- ASSOCAMM TABLE PARAMETRIC SCHEMA
+-- Association of Amplitude and Magnitude entries
+-- in the AMP and NETMAG tables, respectively
+-- lightly adapted for SQLite by modifying the lddate column definition
+-- auth: Renate Hartog
+-- editor: Nathan T. Stevens
+-- orgs: PNSN / AQMS-SWG
+-- license: CC-1.0
+ CREATE TABLE ASSOCAMM 
+ (	MAGID BIGINT, 
+	AMPID BIGINT, 
+	COMMID BIGINT, 
+	AUTH VARCHAR(15) NOT NULL , 
+	SUBSOURCE VARCHAR(8), 
+	WEIGHT DOUBLE PRECISION, 
+	IN_WGT DOUBLE PRECISION, 
+	MAG DOUBLE PRECISION, 
+	MAGRES DOUBLE PRECISION, 
+	MAGCORR DOUBLE PRECISION, 
+	IMPORTANCE DOUBLE PRECISION, 
+	RFLAG VARCHAR(2), 
+	LDDATE TIMESTAMP DEFAULT (CURRENT_TIMESTAMP), 
+	 CONSTRAINT ASSOCAMM07 CHECK (importance >= 0.0 and importance <= 1.0) , 
+	 CONSTRAINT ASSOCAMM02 CHECK (magcorr >= -10.0 and magcorr <= 10.0) , 
+	 CONSTRAINT ASSOCAMM01 CHECK (mag >= -10.0 and mag <= 10.0) , 
+	 CONSTRAINT ASSOCAMM03 CHECK (magid > 0) , 
+	 CONSTRAINT ASSOCAMM05 CHECK (weight >= 0.0 and weight <= 1.0) , 
+	 CONSTRAINT ASSOCAMM06 CHECK (in_wgt >= 0.0 and in_wgt <=1.0) , 
+	 CONSTRAINT ASSOCAMM08 CHECK (rflag in ('a','h','f','A','H','F')) , 
+	 CONSTRAINT ASSOCAMMKEY01 PRIMARY KEY (MAGID, AMPID)
+ ); 
