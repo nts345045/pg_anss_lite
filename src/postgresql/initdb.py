@@ -15,7 +15,8 @@ from pathlib import Path
 import psycopg2, glob, os
 from getpass import getpass
 
-ROOT = Path(__file__).parent
+# Get absolute path to repository root directory
+ROOT = Path(__file__).parent.parent.parent
 
 print("Provide the host name / IP address for your PostgreSQL server: [e.g., localhost]")
 host = input()
@@ -23,17 +24,17 @@ print("Provide the port for your PostgreSQL server: [e.g., 5432]")
 port = input()
 print("Provide the name of a server superuser: [e.g., postgres]")
 user = input()
-
 print("Provide the name of the database you wish to create:")
 dbname = input()
 
 # Create database
-print('psql will ask you for that password one more time:')
+print(f'CREATING DATABASE {dbname}! Please provide password for `{user}` when prompted.')
 cmd = f'psql -U {user} -h {host} -p {port} -W -c "CREATE DATABASE {dbname};"'
 os.system(cmd)
 
 # Open connection to new database (and have implicit connection closure if script ends or fails)
-with psycopg2.connect(host=host, port=port, user=user, password=getpass(f"Provide the password for user `{user}`:"), dbname=dbname) as conn:
+print(f'CONNECTING TO DATABASE')
+with psycopg2.connect(host=host, port=port, user=user, password=getpass(f"Provide the password for user `{user}` to connect:"), dbname=dbname) as conn:
 
     # Initialize parametric tables
     sqlfiles = glob.glob(str(ROOT/'schema'/'create_*.sql'))

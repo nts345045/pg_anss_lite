@@ -1,6 +1,6 @@
 import sqlite3
 import pandas as pd
-from truetime import nominal2timestamp
+from truetime import dbtime2timestamp
 
 def connect_to_database(sqlite_file):
     conn = sqlite3.connect(sqlite_file)
