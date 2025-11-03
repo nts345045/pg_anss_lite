@@ -1,3 +1,9 @@
+-- ASSOCCOM TABLE PARAMETRIC SCHEMA
+-- Association of Coda and Magnitude entries in the ANSS/CISN database parametric schema
+-- auth: Renate Hartog
+-- editor: Nathan T. Stevens
+-- orgs: PNSN / AQMS-SWG
+-- license: CC-1.0
  CREATE TABLE ASSOCCOM 
  (	MAGID BIGINT, 
 	COID BIGINT, 

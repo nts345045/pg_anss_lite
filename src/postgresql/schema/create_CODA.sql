@@ -1,3 +1,9 @@
+-- CODA TABLE PARAMETRIC SCHEMA
+-- Schema for documenting coda observations
+-- auth: Renate Hartog
+-- editor: Nathan T. Stevens
+-- org: PNSN / AQMS-SWG
+-- license: CC-1.0
  CREATE TABLE CODA 
  (	COID BIGINT, 
 	COMMID BIGINT, 

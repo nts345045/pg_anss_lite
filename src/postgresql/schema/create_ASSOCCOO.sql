@@ -1,3 +1,9 @@
+-- ASSOCCOO TABLE PARAMETRIC SCHEMA
+-- Association of Coda and Origin entries in the ANSS/CISN database parametric schema
+-- auth: Renate Hartog
+-- editor: Nathan T. Stevens
+-- orgs: PNSN / AQMS-SWG
+-- license: CC-1.0
  CREATE TABLE ASSOCCOO 
  (	ORID BIGINT, 
 	COID BIGINT, 
