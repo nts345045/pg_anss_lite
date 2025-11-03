@@ -8,13 +8,15 @@
 
 create table AMPSET 
 (AMPSETID  BIGINT not null,
-AMPID BIGINT not null
+AMPID BIGINT not null,
+CONSTRAINT AMPSETKEY01 PRIMARY KEY (ampsetid, ampid), 
+CONSTRAINT AMPSETKEY02 FOREIGN KEY (ampid) REFERENCES amp(ampid)
 );
 
-alter table AMPSET add constraint ampsetkey01 primary key
-(ampsetid, ampid);
+-- alter table AMPSET add constraint ampsetkey01 primary key
+-- (ampsetid, ampid);
 
-alter table AMPSET add constraint ampsetkey02 foreign key (ampid) references amp(ampid);
+-- alter table AMPSET add constraint ampsetkey02 foreign key (ampid) references amp(ampid);
 
 -- comment on table AMPSET is 'This table associates amplitudes with an amplitude set';
 -- comment on column AMPSET.AMPSETID is 'The unique numerical identifier of an amp set';
