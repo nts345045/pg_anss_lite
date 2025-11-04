@@ -44,16 +44,16 @@ CREATE TABLE DCLUSTER
     COMMID BIGINT,
     LDDATE TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
     CONSTRAINT CLUSTER01 CHECK (clid > 0),
-    CONSTRAINT CLUSTER02 CHECK (array_ndim(centroid) = 1),
-    CONSTRAINT CLUSTER03 CHECK (array_ndim(rmsd) = 1),
-    CONSTRAINT CLUSTER04 CHECK (array_ndim(maxdev) = 1),
-    CONSTRAINT CLUSTER05 CHECK (array_ndim(names) = 1),
-    CONSTRAINT CLUSTER06 CHECK (array_ndim(units) = 1),
+    CONSTRAINT CLUSTER02 CHECK (array_ndims(centroid) = 1),
+    CONSTRAINT CLUSTER03 CHECK (array_ndims(rmsd) = 1),
+    CONSTRAINT CLUSTER04 CHECK (array_ndims(maxdev) = 1),
+    CONSTRAINT CLUSTER05 CHECK (array_ndims(bnames) = 1),
+    CONSTRAINT CLUSTER06 CHECK (array_ndims(bunits) = 1),
     CONSTRAINT CLUSTER07 CHECK (array_length(centroid,1) = array_length(rmsd, 1)),
     CONSTRAINT CLUSTER08 CHECK (array_length(centroid,1) = array_length(maxdev, 1)),
-    CONSTRAINT CLUSTER09 CHECK (array_length(centroid,1) = array_length(names, 1)),
-    CONSTRAINT CLUSTER10 CHECK (array_length(centroid,1) = array_length(units, 1)),
+    CONSTRAINT CLUSTER09 CHECK (array_length(centroid,1) = array_length(bnames, 1)),
+    CONSTRAINT CLUSTER10 CHECK (array_length(centroid,1) = array_length(bunits, 1)),
     CONSTRAINT CLUSTERKEY01 PRIMARY KEY (clid),
-    CONSTRAINT CLUSTERKEY02 FOREIGN KEY (prefdet) REFERENCES detection(deid),
-    CONSTRAINT CLUSTERKEY03 FOREIGN KEY (commid) REFERENCES remark(commid)
+    CONSTRAINT CLUSTERKEY02 FOREIGN KEY (prefdet) REFERENCES detection(deid)
+--    CONSTRAINT CLUSTERKEY03 FOREIGN KEY (commid) REFERENCES remark(commid)
 );
