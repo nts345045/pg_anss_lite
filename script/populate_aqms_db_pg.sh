@@ -1,18 +1,34 @@
 #!/bin/bash
 # script: populate_aqms_db_pg.sh
 # editor: Nathan T. Stevens, 
-# auths: Renate Hartog, Paul Freiburg, Victor Kress
+# auths: Renate Hartog, Paul Freiburg, Victor Kress, AQMS Software Working Group Members
 # editor org: PNSN
 # license: CC0-1.0
-# purpose: This provides a quick-start option for populating the ANSS schema into a pre-initiaized PostgreSQL server
-# that does not have the specified DB_NAME database in existance
+# purpose: This provides a quick-start option for populating the ANSS schema
+# into a new database on a pre-initiaized PostgreSQL server 
+#
+# pre-requisites: 
+#       - pre-installed/-initialized PostgreSQL 14+ server
+#       - version-appropriate PostGIS
+#       - super-user access to PostgreSQL server
+# 
+# NOTE: This utility intentionally omits the AQMSpg_ext extension installation
+# and does not populate views used by Jiggle. This is an intentional choice 
+# to lower the number of dependencies needed to stand up PostgreSQL databases
+# using this utility.
+#
+# Parameter Notes
+# *SEQ_START VALUES: For enhanced catalogs, many sequences should be significantly offset
+# from equivalents in the ANSS or Authoritative Regional Network (e.g., PNSN) catalogs
+# to allow 
 
-PG_PORT=5454
-DB_NAME='tahoma'
-PG_HOST='localhost'
-EVID_SEQ_START=100000009
-SEQ_START=9
-SEQ_INC=10
+# USERS SHOULD MODIFY THIS BLOCK 
+PG_PORT=5454                # PostgreSQL server listen port
+DB_NAME='tahoma'            # Database Name To Create & Populate Schema
+PG_HOST='localhost'         # PostgreSQL server host
+EVENT_SEQ_START=100000009   # Starting value for event data related sequences in schema `trinetdb`
+META_SEQ_START=9            # Starting value for non-event data related sequences in schema `trinetdb`
+SEQ_INC=10                  # Increment by value for all sequences in schema `trinetdb`
 
 
 PWD=$(pwd)
@@ -34,24 +50,25 @@ psql -p $PG_PORT -h $PG_HOST -U postgres -d $DB_NAME -f $ROOT/create/users/creat
 # Create Users on database with default passwords
 psql -p $PG_PORT -h $PG_HOST -U postgres -d $DB_NAME -f $ROOT/create/users/create_users.template
 # Create Sequences as user `trinetdb` 
-declare -a seqnames=("EVSEQ" "EQSEQ" "SPECTRALAMPSEQ")
-for i in "${seqnames[@]}"
-do
-    psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -c "CREATE SEQUENCE $i START WITH $EVID_SEQ_START INCREMENT BY $SEQ_INC NO MINVALUE NO MAXVALUE CACHE 1;"
-done
-
+# Parametric Schema Sequences
 declare -a seqnames=("AMPSEQ" "AMPSETSEQ" "ARSEQ"  \
                     "CATSEQ" "COMMSEQ" "COSEQ"  \
-                    "MAGSEQ" "MECSEQ" "MECDATASEQ"  \
-                    "MECFREQSEQ" "ORSEQ" "FISEQ"  \
+                    "EVSEQ" "MAGSEQ" "MECSEQ" "MECDATASEQ"  \
+                    "MECFREQSEQ" "ORSEQ" )
+for i in "${seqnames[@]}"
+do
+    psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -c "CREATE SEQUENCE $i START WITH $EVENT_SEQ_START INCREMENT BY $SEQ_INC NO MINVALUE NO MAXVALUE CACHE 1;"
+done
+# Waveform, Instrument Response, and Application Schema Sequences
+declare -a seqnames=( "FISEQ"  \
                     "SDSEQ" "WASEQ" "ABBSEQ" "COMSEQ"  \
                     "DCSEQ" "DMSEQ" "FORSEQ" "NTSEQ"  \
                     "POSEQ" "PZSEQ" "UNISEQ" "SIGSEQ"  \ 
-                    "SUBSEQ" "TRIGSEQ" "REQSEQ"  \
+                    "SUBSEQ" "TRIGSEQ" "REQSEQ" \
                     "UNASSOCSEQ" "GAZSEQ")
 for i in "${seqnames[@]}"
 do
-    psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -c "CREATE SEQUENCE $i START WITH $SEQ_START INCREMENT BY $SEQ_INC NO MINVALUE NO MAXVALUE CACHE 1;"
+    psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -c "CREATE SEQUENCE $i START WITH $META_SEQ_START INCREMENT BY $SEQ_INC NO MINVALUE NO MAXVALUE CACHE 1;"
 done
 # Populate table schema
 declare -a schema=("waveform" "parametric" "instrument_response" "hardware" "application")
@@ -69,7 +86,7 @@ psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -f grant_all_tables.sql
 declare -a seqnames=("EQSEQ" "SPECTRALAMPSEQ")
 for i in "${seqnames[@]}"
 do
-    psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -c "ALTER SEQUENCE $i START WITH $EVID_SEQ_START INCREMENT BY $SEQ_INC RESTART WITH $EVID_SEQ_START;"
+    psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -c "ALTER SEQUENCE $i START WITH $EVENT_SEQ_START INCREMENT BY $SEQ_INC RESTART WITH $EVENT_SEQ_START;"
 done
 # Install custom types as user `code`
 psql -p $PG_PORT -h $PG_HOST -U code -d $DB_NAME -c "CREATE TYPE latlon AS (lat numeric(9,7), lon numeric(10,7));"
@@ -85,3 +102,6 @@ done
 # Populate indices as `trinetdb`
 cd $ROOT/create/indexes
 psql -p $PG_PORT -h $PG_HOST -U trinetdb -d $DB_NAME -f aqms_indexes.sql
+
+# Return to execution directory
+cd $PWD
