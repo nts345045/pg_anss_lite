@@ -1,5 +1,6 @@
 db
 data
+postgresql/aqms-db-pg
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
