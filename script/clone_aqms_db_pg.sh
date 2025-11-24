@@ -13,6 +13,9 @@
 
 # Get script directory
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
+DEST=$SCRIPT_DIR/../postgresql/aqms-db-pg
 # Clone into postgresql folder
-git clone https://gitlab.com/aqms-swg/aqms-db-pg.git $SCRIPT_DIR/../postgresql/aqms-db-pg
+if [ ! -d "$DEST" ]; then
+    git clone https://gitlab.com/aqms-swg/aqms-db-pg.git $DEST
+else
+    cd $DEST && git pull
