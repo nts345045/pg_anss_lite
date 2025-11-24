@@ -22,13 +22,15 @@
 # from equivalents in the ANSS or Authoritative Regional Network (e.g., PNSN) catalogs
 # to allow 
 
-# USERS SHOULD MODIFY THIS BLOCK 
-PG_PORT=5454                # PostgreSQL server listen port
-DB_NAME='tahoma'            # Database Name To Create & Populate Schema
-PG_HOST='localhost'         # PostgreSQL server host
-EVENT_SEQ_START=100000009   # Starting value for event data related sequences in schema `trinetdb`
-META_SEQ_START=9            # Starting value for non-event data related sequences in schema `trinetdb`
-SEQ_INC=10                  # Increment by value for all sequences in schema `trinetdb`
+# # USERS SHOULD MODIFY THIS BLOCK OR DECARE WITH AN ENV
+# PG_PORT=5454                # PostgreSQL server listen port
+# DB_NAME='tahoma'            # Database Name To Create & Populate Schema
+# PG_HOST='localhost'         # PostgreSQL server host
+# EVENT_SEQ_START=100000009   # Starting value for event data related sequences in schema `trinetdb`
+# META_SEQ_START=9            # Starting value for non-event data related sequences in schema `trinetdb`
+# SEQ_INC=10                  # Increment by value for all sequences in schema `trinetdb`
+
+
 
 
 PWD=$(pwd)
