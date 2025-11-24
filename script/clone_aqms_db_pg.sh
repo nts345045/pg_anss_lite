@@ -19,3 +19,4 @@ if [ ! -d "$DEST" ]; then
     git clone https://gitlab.com/aqms-swg/aqms-db-pg.git $DEST
 else
     cd $DEST && git pull
+fi
