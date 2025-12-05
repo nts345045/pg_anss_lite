@@ -16,17 +16,19 @@
 -- LDDATE: Date loaded into database
 
 CREATE TABLE XCORR (
-    IEVID BIGINT,
-    IARID BIGINT,
-    ICHANID BIGINT,
-    INSLC VARCHAR(27),
-    JEVID BIGINT,
-    JARID BIGINT,
-    JCHANID BIGINT,
-    JNSLC VARCHAR(27),
+    REVID BIGINT,
+    RARID BIGINT,
+    RCHANID BIGINT,
+    RNSLC VARCHAR(27),
+    RPROCCOMMID BIGINT,
+    RSCALAR DOUBLE PRECISION,
+    XEVID BIGINT,
+    XARID BIGINT,
+    XCHANID BIGINT,
+    XNSLC VARCHAR(27),
+    XPROCCOMMID BIGINT,
+    XSCALAR DOUBLE PRECISION,
     SAMP_RATE REAL NOT NULL,
-    NPTS REAL NOT NULL,
-    NPTS_PRE REAL NOT NULL,
     CC_VAL REAL,
     CC_SHIFT INTEGER,
     SHMAX INTEGER NOT NULL,
@@ -34,14 +36,32 @@ CREATE TABLE XCORR (
     CONSTRAINT XCORR01 CHECK (cc_val >= -1 AND cc_val <= 1),
     CONSTRAINT XCORR02 CHECK (ABS(cc_shift) <= shmax),
     CONSTRAINT XCORR03 CHECK (samp_rate > 0),
-    CONSTRAINT XCORRKEY02 FOREIGN KEY (ievid) REFERENCES event(evid),
-    CONSTRAINT XCORRKEY03 FOREIGN KEY (iarid) REFERENCES arrival(arid),
-    CONSTRAINT XCORRKEY04 FOREIGN KEY (jevid) REFERENCES event(evid),
-    CONSTRAINT XCORRKEY05 FOREIGN KEY (jarid) REFERENCES arrival(arid),
-    CONSTRAINT XCORRKEY06 FOREIGN KEY (ichanid) REFERENCES stachan(chanid),
-    CONSTRAINT XCORRKEY07 FOREIGN KEY (jchanid) REFERENCES stachan(chanid)
+    CONSTRAINT XCORRKEY01 FOREIGN KEY (revid) REFERENCES event(evid),
+    CONSTRAINT XCORRKEY02 FOREIGN KEY (xevid) REFERENCES event(evid),
+    CONSTRAINT XCORRKEY03 FOREIGN KEY (rarid) REFERENCES arrival(arid),
+    CONSTRAINT XCORRKEY04 FOREIGN KEY (xarid) REFERENCES arrival(arid),
+    CONSTRAINT XCORRKEY05 FOREIGN KEY (rchanid) REFERENCES stachan(chanid),
+    CONSTRAINT XCORRKEY06 FOREIGN KEY (xchanid) REFERENCES stachan(chanid),
+    CONSTRAINT XCORRKEY07 FOREIGN KEY (rproccommid) REFERENCES remark(commid),
+    CONSTRAINT XCORRKEY08 FOREIGN KEY (xproccommid) REFERENCES remark(commid)
 );
 
+COMMENT ON TABLE XCORR IS "Cross correlation table";
+COMMENT ON COLUMN XCORR.REVID IS "Event ID for the reference waveform trace (R)";
+COMMENT ON COLUMN XCORR.RARID IS "Arrival ID for the reference waveform trace (R)";
+COMMENT ON COLUMN XCORR.RCHANID IS "Station Channel ID for the reference waveform trace (R)";
+COMMENT ON COLUMN XCORR.RNSLC IS "SEED stream code, including periods, for the reference waveform trace (R)";
+COMMENT ON COLUMN XCORR.RSCALAR IS "Normalization scalar for the reference waveform trace (R)";
+COMMENT ON COLUMN XCORR.XEVID IS "Event ID for the correlated waveform trace (X)";
+COMMENT ON COLUMN XCORR.XARID IS "Arrival ID for the correlated waveform trace (X)";
+COMMENT ON COLUMN XCORR.XCHANID IS "Station Channel ID for the correlated waveform trace (X)";
+COMMENT ON COLUMN XCORR.XNSLC IS "SEED stream code, including periods, for the correlated waveform trace (X)";
+COMMENT ON COLUMN XCORR.XSCALAR IS "Normalization scalar for the correlated waveform trace (X)";
+COMMENT ON COLUMN XCORR.SAMP_RATE IS "Common sampling rate for both waveform traces in samples per second";
+COMMENT ON COLUMN XCORR.CC_VAL IS "Cross correlation value (signed) ";
+COMMENT ON COLUMN XCORR.CC_SHIFT IS "Cross correlation shift in samples corresponding to CC_VAL";
+COMMENT ON COLUMN XCORR.SHMAX IS "Maximum cross correlation shift in samples (unsigned) tested";
+COMMENT ON COLUMN XCORR.LDDATE IS "Load date of this entry into the database in true time at tz UTC";
 
 
 

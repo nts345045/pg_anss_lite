@@ -16,7 +16,8 @@ CREATE TABLE STACHAN (
     COMMID BIGINT,
     LDDATE TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
     CONSTRAINT STACHANKEY01 PRIMARY KEY (chanid),
-    CONSTRAINT STACHAN01 CHECK (samp_rate > 0)
+    CONSTRAINT STACHAN01 CHECK (samp_rate > 0),
+    CONSTRAINT STACHANKEY02 FOREIGN KEY (commid) REFERENCE remark(commid)
 );
 
 COMMENT ON TABLE STACHAN IS 'Station Channel (Meta)Data';
@@ -33,5 +34,5 @@ COMMENT ON COLUMN STACHAN.DIP IS 'Inclination of the station-channel in degrees 
 COMMENT ON COLUMN STACHAN.ONTIME IS 'Station-channel recording start datetime in nominal time';
 COMMENT ON COLUMN STACHAN.OFFTIME IS 'Station-channel recording end datetime in nominal time';
 COMMENT ON COLUMN STACHAN.SAMP_RATE IS 'Sampling rate for this station-channel in samples per second';
-COMMENT ON COLUMN STACHAN.COMMID IS 'Implied foreign key to the REMARK table';
+COMMENT ON COLUMN STACHAN.COMMID IS 'Comment identifier referencing the REMARK table';
 COMMENT ON COLUMN STACHAN.LDDATE IS 'Load date of this entry into database in true time at tz UTC';

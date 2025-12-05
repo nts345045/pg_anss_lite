@@ -26,7 +26,8 @@
 
 CREATE TABLE DETECTION
 (   DEID BIGINT,
-    TEID BIGINT NOT NULL,
+    TEID BIGINT,
+    WFPID BIGINT,
     NAME VARCHAR(30),
     DATETIME DOUBLE PRECISION NOT NULL,
     NBC SMALLINT,
@@ -42,5 +43,22 @@ CREATE TABLE DETECTION
     LDDATE TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
     CONSTRAINT DETECTION01 CHECK (DEID > 0), 
     CONSTRAINT DETECTIONKEY01 PRIMARY KEY (DEID),
-    CONSTRAINT DETECTIONKEY02 FOREIGN KEY (TEID) REFERENCES template(teid)
+    CONSTRAINT DETECTIONKEY02 FOREIGN KEY (TEID) REFERENCES template(teid),
+    CONSTRAINT DETECTIONKEY03 FOREIGN KEY (WFPID) REFERENCES wfproc(wfpid)
 );
+
+COMMENT ON TABLE DETECTION IS "Matched filter candidate event detection table encapsulating an EQcorrscan 'detection' object";
+COMMENT ON COLUMN DETECTION.DEID IS "Unique numerical identifier for each detection (PRIMARY KEY)";
+COMMENT ON COLUMN DETECTION.TEID IS "Numercal identifier for the parent template for this detection (FOREIGN KEY)";
+COMMENT ON COLUMN DETECTION.WFPID IS "Numerical identifier for the waveform preprocessing workflow for this detection (FORIEGN KEY)"
+COMMENT ON COLUMN DETECTION.NAME IS "Name of the detection";
+COMMENT ON COLUMN DETECTION.DATETIME IS "Detection origin time (differs from detection time)";
+COMMENT ON COLUMN DETECTION.NBC IS "Number of channels in the detection";
+COMMENT ON COLUMN DETECTION.DVAL IS "Detection value";
+COMMENT ON COLUMN DETECTION.THRESH IS "Detection threshold";
+COMMENT ON COLUMN DETECTION.DTYPE IS "Detection type";
+COMMENT ON COLUMN DETECTION.TTYPE IS "Threshold type";
+COMMENT ON COLUMN DETECTION.THRESH_IN IS "Input threshold value";
+COMMENT ON COLUMN DETECTION.DT_D0 IS "Detection time minus detection origin time (DATETIME)";
+COMMENT ON COLUMN DETECTION.DT_T0 IS "DATETIME minus origin time of the detection's parent template";
+COMMENT ON 
