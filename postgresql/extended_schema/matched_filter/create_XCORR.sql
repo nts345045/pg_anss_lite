@@ -42,26 +42,26 @@ CREATE TABLE XCORR (
     CONSTRAINT XCORRKEY04 FOREIGN KEY (xarid) REFERENCES arrival(arid),
     CONSTRAINT XCORRKEY05 FOREIGN KEY (rchanid) REFERENCES stachan(chanid),
     CONSTRAINT XCORRKEY06 FOREIGN KEY (xchanid) REFERENCES stachan(chanid),
-    CONSTRAINT XCORRKEY07 FOREIGN KEY (rproccommid) REFERENCES remark(commid),
-    CONSTRAINT XCORRKEY08 FOREIGN KEY (xproccommid) REFERENCES remark(commid)
+    -- CONSTRAINT XCORRKEY07 FOREIGN KEY (rproccommid) REFERENCES remark(commid),
+    -- CONSTRAINT XCORRKEY08 FOREIGN KEY (xproccommid) REFERENCES remark(commid)
 );
 
-COMMENT ON TABLE XCORR IS "Cross correlation table";
-COMMENT ON COLUMN XCORR.REVID IS "Event ID for the reference waveform trace (R)";
-COMMENT ON COLUMN XCORR.RARID IS "Arrival ID for the reference waveform trace (R)";
-COMMENT ON COLUMN XCORR.RCHANID IS "Station Channel ID for the reference waveform trace (R)";
-COMMENT ON COLUMN XCORR.RNSLC IS "SEED stream code, including periods, for the reference waveform trace (R)";
-COMMENT ON COLUMN XCORR.RSCALAR IS "Normalization scalar for the reference waveform trace (R)";
-COMMENT ON COLUMN XCORR.XEVID IS "Event ID for the correlated waveform trace (X)";
-COMMENT ON COLUMN XCORR.XARID IS "Arrival ID for the correlated waveform trace (X)";
-COMMENT ON COLUMN XCORR.XCHANID IS "Station Channel ID for the correlated waveform trace (X)";
-COMMENT ON COLUMN XCORR.XNSLC IS "SEED stream code, including periods, for the correlated waveform trace (X)";
-COMMENT ON COLUMN XCORR.XSCALAR IS "Normalization scalar for the correlated waveform trace (X)";
-COMMENT ON COLUMN XCORR.SAMP_RATE IS "Common sampling rate for both waveform traces in samples per second";
-COMMENT ON COLUMN XCORR.CC_VAL IS "Cross correlation value (signed) ";
-COMMENT ON COLUMN XCORR.CC_SHIFT IS "Cross correlation shift in samples corresponding to CC_VAL";
-COMMENT ON COLUMN XCORR.SHMAX IS "Maximum cross correlation shift in samples (unsigned) tested";
-COMMENT ON COLUMN XCORR.LDDATE IS "Load date of this entry into the database in true time at tz UTC";
+-- COMMENT ON TABLE XCORR IS "Cross correlation table";
+-- COMMENT ON COLUMN XCORR.REVID IS "Event ID for the reference waveform trace (R)";
+-- COMMENT ON COLUMN XCORR.RARID IS "Arrival ID for the reference waveform trace (R)";
+-- COMMENT ON COLUMN XCORR.RCHANID IS "Station Channel ID for the reference waveform trace (R)";
+-- COMMENT ON COLUMN XCORR.RNSLC IS "SEED stream code, including periods, for the reference waveform trace (R)";
+-- COMMENT ON COLUMN XCORR.RSCALAR IS "Normalization scalar for the reference waveform trace (R)";
+-- COMMENT ON COLUMN XCORR.XEVID IS "Event ID for the correlated waveform trace (X)";
+-- COMMENT ON COLUMN XCORR.XARID IS "Arrival ID for the correlated waveform trace (X)";
+-- COMMENT ON COLUMN XCORR.XCHANID IS "Station Channel ID for the correlated waveform trace (X)";
+-- COMMENT ON COLUMN XCORR.XNSLC IS "SEED stream code, including periods, for the correlated waveform trace (X)";
+-- COMMENT ON COLUMN XCORR.XSCALAR IS "Normalization scalar for the correlated waveform trace (X)";
+-- COMMENT ON COLUMN XCORR.SAMP_RATE IS "Common sampling rate for both waveform traces in samples per second";
+-- COMMENT ON COLUMN XCORR.CC_VAL IS "Cross correlation value (signed) ";
+-- COMMENT ON COLUMN XCORR.CC_SHIFT IS "Cross correlation shift in samples corresponding to CC_VAL";
+-- COMMENT ON COLUMN XCORR.SHMAX IS "Maximum cross correlation shift in samples (unsigned) tested";
+-- COMMENT ON COLUMN XCORR.LDDATE IS "Load date of this entry into the database in true time at tz UTC";
 
 
 
