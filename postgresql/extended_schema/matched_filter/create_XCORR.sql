@@ -41,10 +41,10 @@ CREATE TABLE XCORR (
     CONSTRAINT XCORRKEY03 FOREIGN KEY (rarid) REFERENCES arrival(arid),
     CONSTRAINT XCORRKEY04 FOREIGN KEY (xarid) REFERENCES arrival(arid),
     CONSTRAINT XCORRKEY05 FOREIGN KEY (rchanid) REFERENCES stachan(chanid),
-    CONSTRAINT XCORRKEY06 FOREIGN KEY (xchanid) REFERENCES stachan(chanid),
+    CONSTRAINT XCORRKEY06 FOREIGN KEY (xchanid) REFERENCES stachan(chanid));
     -- CONSTRAINT XCORRKEY07 FOREIGN KEY (rproccommid) REFERENCES remark(commid),
     -- CONSTRAINT XCORRKEY08 FOREIGN KEY (xproccommid) REFERENCES remark(commid)
-);
+-- );
 
 -- COMMENT ON TABLE XCORR IS "Cross correlation table";
 -- COMMENT ON COLUMN XCORR.REVID IS "Event ID for the reference waveform trace (R)";
