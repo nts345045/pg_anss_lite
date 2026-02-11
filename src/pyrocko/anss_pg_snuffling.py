@@ -174,8 +174,11 @@ class ANSSArrival(AttribDict):
 class ANSSOrigin(AttribDict):
     _types = {
         'event_hash': (type(None), str),
-        'orid': (type(None), int),
         'evid': (type(None), int),
+        'etype': str,
+        'version': int,
+        'selectflag': int,
+        'orid': (type(None), int),
         'prefmag': (type(None), int),
         'prefmec': (type(None), int),
         'commid': (type(None), int),
@@ -215,13 +218,17 @@ class ANSSOrigin(AttribDict):
         'crust_type': (str, type(None)),
         'crust_model': (str, type(None)),
         'gtype': (str, type(None)),
+        'rflag': str,
         'lddate': (UTCDateTime)
     }
 
     defaults = {
         'event_hash': None,
-        'orid': None,
         'evid': None,
+        'etype': 'st',
+        'version': 1,
+        'selectflag': 0,
+        'orid': None,
         'prefmag': None,
         'prefmec': None,
         'commid': None,
@@ -261,6 +268,7 @@ class ANSSOrigin(AttribDict):
         'crust_type': None,
         'crust_model': None,
         'gtype': None,
+        'rflag': 'a',
         'lddate': UTCDateTime()
     }
 
@@ -445,6 +453,7 @@ class ArrivalMarker(PhaseMarker):
 class OriginMarker(EventMarker):
     def __init__(self, event_marker=None, **options):
         if event_marker is None:
+            # If an event is provided, scrape that first
             if 'event' in options.keys():
                 if isinstance(options['event'], Event):
                     self._in = ANSSOrigin(options['event'])
@@ -452,8 +461,21 @@ class OriginMarker(EventMarker):
                                     )
                 else:
                     options.pop('event')
+            else:
+                self._in = ANSSOrigin(options)
+        # If an OriginMarker is provided, do nothing
+        elif isinstance(event_marker, OriginMarker):
+            return event_marker
+        # If an event marker is provided, scrape data and run update
+        elif isinstance(event_marker, EventMarker):
+            super().__init__(event=event_marker._event,
+                             kind=event_marker.kind,
+                             event_hash=event_marker._event.get_hash()
+                             )
+            self._in = ANSSOrigin(event=event_marker._event)
+            
+            
 
-            self._in = ANSSOrigin(options)
 
 
 
@@ -652,16 +674,35 @@ class ANSS_PostgreSQL_Client(Snuffling):
                 o.lat,
                 o.lon,
                 o.depth,
+                o.mdepth,
+                o.type,
                 o.algorithm,
                 o.algo_assoc,
                 o.auth,
                 o.subsource,
+                o.datumhor,
+                o.datumver,
+                o.gap,
+                o.distance,
+                o.wrms,
+                o.stime,
+                o.erhor,
+                o.sdep,
+                o.erlat,
+                o.erlon,
                 o.totalarr,
                 o.nbs,
                 o.nbfm,
+                o.locevid,
+                o.quality,
                 o.fdepth,
                 o.fepi,
                 o.ftime,
+                o.vmodelid,
+                o.cmodelid,
+                o.crust_type,
+                o.crust_model,
+                o.gtype,
                 o.rflag,
                 m.magnitude AS mag,
                 'm'||m.magtype AS magtype
