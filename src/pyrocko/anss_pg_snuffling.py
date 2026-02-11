@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 from obspy import UTCDateTime
 from obspy.core.util.attribdict import AttribDict
+from obspy.clients.fdsn import Client
 from pyrocko.gui.snuffler.snuffling import Snuffling, Param, PhaseMarker, Switch, Choice, EventMarker
 from pyrocko.gui.snuffler.pile_viewer import Marker, EventMarker, PhaseMarker, qc
 from pyrocko.model.event import Event
@@ -103,45 +104,46 @@ def qual2str(qual):
         return ''
 
 class ANSSArrival(AttribDict):
-    _types = {
-        'event_hash': (type(None), str),
-        'evid': (type(None), int),
-        'orid': (type(None), int),
-        'arid': (type(None), int),
-        'commid': (type(None), int),
-        'datetime': float,
-        'sta': str,
-        'net': str,
-        'auth': str,
-        'subsource': str,
-        'channel': (type(None), str),
-        'channelsrc': (type(None), str),
-        'seedchan': (type(None), str),
-        'location': (type(None), str),
-        'iphase': (type(None), str),
-        'qual': (type(None), str),
-        'clockqual': (type(None), int),
-        'clockcorr': (type(None), float),
-        'ccset': (type(None), float),
-        'fm': (type(None), str),
-        'ema': (type(None), float),
-        'azimuth': (type(None), float),
-        'slow': (type(None), float),
-        'deltim': (type(None), float),
-        'delinc': (type(None), float),
-        'delaz': (type(None), float),
-        'delslo': (type(None), float),
-        'quality': (type(None), float),
-        'snr': (type(None), float),
-        'rflag': str,
-        'lddate': UTCDateTime
-    }
+    # _types = {
+    #     'event_hash': (type(None), str),
+    #     'evid': (type(None), int),
+    #     'orid': (type(None), int),
+    #     'arid': (type(None), int),
+    #     'commid': (type(None), int),
+    #     'datetime': float,
+    #     'sta': str,
+    #     'net': str,
+    #     'auth': str,
+    #     'subsource': str,
+    #     'channel': (type(None), str),
+    #     'channelsrc': (type(None), str),
+    #     'seedchan': (type(None), str),
+    #     'location': (type(None), str),
+    #     'iphase': (type(None), str),
+    #     'qual': (type(None), str),
+    #     'clockqual': (type(None), int),
+    #     'clockcorr': (type(None), float),
+    #     'ccset': (type(None), float),
+    #     'fm': (type(None), str),
+    #     'ema': (type(None), float),
+    #     'azimuth': (type(None), float),
+    #     'slow': (type(None), float),
+    #     'deltim': (type(None), float),
+    #     'delinc': (type(None), float),
+    #     'delaz': (type(None), float),
+    #     'delslo': (type(None), float),
+    #     'quality': (type(None), float),
+    #     'snr': (type(None), float),
+    #     'rflag': str,
+    #     'lddate': UTCDateTime
+    # }
     defaults = {
         'event_hash': None,
         'event': None,
         'orid': None,
         'arid': None,
         'commid': None,
+        'datetime': 0.,
         'sta': '',
         'net': '',
         'auth': '',
@@ -172,55 +174,55 @@ class ANSSArrival(AttribDict):
         super().__init__(values)
 
 class ANSSOrigin(AttribDict):
-    _types = {
-        'event_hash': (type(None), str),
-        'evid': (type(None), int),
-        'etype': str,
-        'version': int,
-        'selectflag': int,
-        'orid': (type(None), int),
-        'prefmag': (type(None), int),
-        'prefmec': (type(None), int),
-        'commid': (type(None), int),
-        'bogusflag': (int, type(None)),
-        'datetime': (float, type(None)),
-        'lat': (float, type(None)),
-        'lon': (float, type(None)),
-        'depth': (float, type(None)),
-        'mdepth': (float, type(None)),
-        'type': (str, type(None)),
-        'algorithm': (str, type(None)),
-        'algo_assoc': (str, type(None)),
-        'auth': (str, type(None)),
-        'subsource': (str, type(None)),
-        'datumhor': (str, type(None)),
-        'datumver': (str, type(None)),
-        'gap': (float, type(None)),
-        'distance': (float, type(None)),
-        'wrms': (float, type(None)),
-        'stime': (float, type(None)),
-        'erhor': (float, type(None)),
-        'sdep': (float, type(None)),
-        'erlat': (float, type(None)),
-        'erlon': (float, type(None)),
-        'totalarr': (int, type(None)),
-        'totalamp': (int, type(None)),
-        'ndef': (int, type(None)),
-        'nbs': (int, type(None)),
-        'nbfm': (int, type(None)),
-        'locevid': (int, type(None)),
-        'quality': (float, type(None)),
-        'fdepth': (str, type(None)),
-        'fepi': (str, type(None)),
-        'ftime': (str, type(None)),
-        'vmodelid': (str, int, type(None)),
-        'cmodelid': (str, int, type(None)),
-        'crust_type': (str, type(None)),
-        'crust_model': (str, type(None)),
-        'gtype': (str, type(None)),
-        'rflag': str,
-        'lddate': (UTCDateTime)
-    }
+    # _types = {
+    #     'event_hash': (type(None), str),
+    #     'evid': (type(None), int),
+    #     'etype': str,
+    #     'version': int,
+    #     'selectflag': int,
+    #     'orid': (type(None), int),
+    #     'prefmag': (type(None), int),
+    #     'prefmec': (type(None), int),
+    #     'commid': (type(None), int),
+    #     'bogusflag': (int, type(None)),
+    #     'datetime': (float, type(None)),
+    #     'lat': (float, type(None)),
+    #     'lon': (float, type(None)),
+    #     'depth': (float, type(None)),
+    #     'mdepth': (float, type(None)),
+    #     'type': (str, type(None)),
+    #     'algorithm': (str, type(None)),
+    #     'algo_assoc': (str, type(None)),
+    #     'auth': (str, type(None)),
+    #     'subsource': (str, type(None)),
+    #     'datumhor': (str, type(None)),
+    #     'datumver': (str, type(None)),
+    #     'gap': (float, type(None)),
+    #     'distance': (float, type(None)),
+    #     'wrms': (float, type(None)),
+    #     'stime': (float, type(None)),
+    #     'erhor': (float, type(None)),
+    #     'sdep': (float, type(None)),
+    #     'erlat': (float, type(None)),
+    #     'erlon': (float, type(None)),
+    #     'totalarr': (int, type(None)),
+    #     'totalamp': (int, type(None)),
+    #     'ndef': (int, type(None)),
+    #     'nbs': (int, type(None)),
+    #     'nbfm': (int, type(None)),
+    #     'locevid': (int, type(None)),
+    #     'quality': (float, type(None)),
+    #     'fdepth': (str, type(None)),
+    #     'fepi': (str, type(None)),
+    #     'ftime': (str, type(None)),
+    #     'vmodelid': (str, int, type(None)),
+    #     'cmodelid': (str, int, type(None)),
+    #     'crust_type': (str, type(None)),
+    #     'crust_model': (str, type(None)),
+    #     'gtype': (str, type(None)),
+    #     'rflag': str,
+    #     'lddate': (UTCDateTime)
+    # }
 
     defaults = {
         'event_hash': None,
@@ -233,7 +235,7 @@ class ANSSOrigin(AttribDict):
         'prefmec': None,
         'commid': None,
         'bogusflag': 1,
-        'datetime': None,
+        'datetime': 0.,
         'lat': None,
         'lon': None,
         'depth': None,
@@ -298,185 +300,204 @@ class ANSSOrigin(AttribDict):
             raise TypeError
         super().__init__(vals)
 
-                            
+
 
 class ArrivalMarker(PhaseMarker):
-    def __init__(self, phase_marker=None, **options):
-        
+    def __init__(self, **kwargs):
         self._in = ANSSArrival()
-        for _k, _v in options.items():
-            if _k in self._init.keys():
-                self._init.update({_k:_v})
-        # If no phase marker is provided
-        if phase_marker is None:
-            if self._in.location == '  ':
-                _loc = ''
-            else:
-                _loc = self._in.location
-            
-            if self._in.channel is None and self._in.seedchan is None:
-                raise ValueError('Channel must be specified with either "seedchan" or "channel"')
-            elif self._in.seedchan is None:
-                _cha = self._in.channel
-            else:
-                _cha = self._in.seedchan
-
-            _ikw = {
-                'nslc_ids':((self._in.net, self._in, _loc, _cha),),
-                'tmin':self._in.datetime,
-                'tmax':self._in.datetime,
-                'phasename': self._in.iphase,
-                'polarity': fm2polarity(self._in.fm),
-                'automatic': self._in.rflag.lower() in ['a','c','i'],
-                'incidence_angle': self._in.ema
-            }
-            for _key in ['kind','event','event_hash','event_time']:
-                if _key in options.keys():
-                    _ikw.update({_key: options[_key]})
-            super().__init__(**_ikw)
-            if isinstance(self._event_hash, str):
-                self._in.event_hash=self._event_hash
-
-        # If phasemarker is provided
-        elif isinstance(phase_marker, PhaseMarker):
-            # If it is already an ArrivalMarker, return input unaltered
-            if isinstance(phase_marker, ArrivalMarker):
-                return phase_marker
-            if len(phase_marker.nslc_ids) != 1:
-                raise AttributeError(f'Can only convert single-entry nslc_ids PhaseMarkers. This has {len(phase_marker.nslc_ids)} nslc_ids entries')
-            super().__init__(
-                nslc_ids=phase_marker.nslc_ids,
-                tmin=phase_marker.tmin,
-                tmax=phase_marker.tmax,
-                kind=phase_marker.kind,
-                event=phase_marker._event,
-                event_hash=phase_marker._event_hash,
-                event_time=phase_marker._event_time,
-                automatic=phase_marker._automatic,
-                incidence_angle=phase_marker._incidence_angle,
-                takeoff_angle=phase_marker._takeoff_angle,
-                polarity=phase_marker._polarity
-            )
-            n, s, l, c = self.nslc_ids[0]
-            if l == '':
-                _l = '  '
-            else:
-                _l = l
-            values={
-                'net': n,
-                'sta': s,
-                'location': _l,
-                'seedchan': c,
-                'channel': c,
-                'datetime': 0.5*(self.tmin + self.tmax),
-                'event_hash': self.get_event_hash(),
-                'fm': polarity2fm(self.get_polarity()),
-                'iphase': self.get_phasename(),
-                'ema': self._incidence_angle,
-            }
-            if not self._automatic:
-                if self.kind != 0 and self.phasename is not None:
-                    values.update({'rflag': 'h'})
-                elif self.kind == 0 and self.phasename is not None:
-                    values.update({'rflag': 'i'})
-                    self._automatic=True
-                else:
-                    self._automatic=True
-            
-            self._in = ANSSArrival(values=values)
-        # Mark all fields as not updated
-        self._updated = {_k: False for _k in self._in.keys()}
-    
-    def set_event_hash(self, event_hash):
-        self.check_updates()
-        super().set_event_hash(event_hash)
-
-    def set_phasename(self, phasename):
-        self.check_updates()
-        super().set_phasename(phasename)
-    
-    def set_polarity(self, polarity):
-        self.check_updates()
-        super().set_polarity(polarity)
-
-    # FIXME: Convert this to a __setattr__ at some point.
-    def check_updates(self):
-        if not hasattr(self, '_updated'):
-            return
-        
-        # Check datetime
-        if self._in.datetime == 0.5*(self.tmin + self.tmax):
-            # If matched, ensure that datetime does not show as alteration
-            self._updated.datetime=False
-            # If arid was modified, revert
-            if self._updated.arid != self._in.arid:
-                self._updated.arid = False
-            # If orid was modified, revert
-            if self._updated.orid != self._in.orid:
-                self._updated.orid = False
-        # Enforce several updates reflecting that this marker no longer
-        # represents the same NSLC+T entry
+        for _k, _v in kwargs.items():
+            if _k in self._in.keys():
+                self._in.update({_k:_v})
+        if self._in.location == '  ':
+            _loc = ''
         else:
-            self._updated.datetime = 0.5*(self.tmin + self.tmax)
-            if self._in.rflag.lower() not in ['h','f']:
-                self._updated.rflag='h'
-            if self._in.arid is not None:
-                self._updated.arid=None
-            if self._in.orid is not None:
-                self._updated.orid=None
+            _loc = self._in.location
+        # print(self._in.event_hash)
+        super().__init__(
+            nslc_ids=((self._in.net, self._in.sta, _loc, self._in.seedchan),),
+            tmin=self._in.datetime,
+            tmax=self._in.datetime,
+            phasename=self._in.iphase,
+            kind=rflag2kind(self._in.rflag),
+            event_hash=self._in.event_hash
+        )
+        if self._event_hash != self._in.event_hash:
+            self._event_hash = self._in.event_hash
+        self._updated=AttribDict({_k: False for _k in self._in.keys()})
 
-        # Phase label update
-        if self.phasename != self._in.iphase:
-            self._updated.iphase = self._phasename
-        # Reset clause
-        elif self._updated.iphase:
-            self._updated.iphase = False
 
-        # Polarity update check
-        if polarity2fm(self._polarity) != self._in.fm:
-            self._updated.fm = polarity2fm(self._polarity)
-        # Reset clause
-        elif self._updated.fm:
-            self._updated.fm = False
+# class ArrivalMarker(PhaseMarker):
+#     def __init__(self, phase_marker=None, **options):
+        
+#         self._in = ANSSArrival()
+#         for _k, _v in options.items():
+#             if _k in self._in.keys():
+#                 self._in.update({_k:_v})
+#         # If no phase marker is provided
+#         if phase_marker is None:
+#             if self._in.location == '  ':
+#                 _loc = ''
+#             else:
+#                 _loc = self._in.location
+            
+#             if self._in.channel is None and self._in.seedchan is None:
+#                 raise ValueError('Channel must be specified with either "seedchan" or "channel"')
+#             elif self._in.seedchan is None:
+#                 _cha = self._in.channel
+#             else:
+#                 _cha = self._in.seedchan
 
-        # Kind check for rflag
-        if self.kind != 0:
-            # If marker KIND is paired with any changes in phase label, polarity, or time
-            # elevate to 'h'
-            if any([self._updated.iphase, self._updated.fm, self._updated.datetime]):
-                if self._in.rflag.lower() != 'h':
-                    self._updated.rflag='h'
-            # If not, but label color is changed on an 
-            elif self._automatic and self._updated.rflag.lower() != 'i':
-                self._updated.rflag='i'
+#             _ikw = {
+#                 'nslc_ids':((self._in.net, self._in, _loc, _cha),),
+#                 'tmin':self._in.datetime,
+#                 'tmax':self._in.datetime,
+#                 'phasename': self._in.iphase,
+#                 'polarity': fm2polarity(self._in.fm),
+#                 'automatic': self._in.rflag.lower() in ['a','c','i'],
+#                 'incidence_angle': self._in.ema
+#             }
+#             for _key in ['kind','event','event_hash','event_time']:
+#                 if _key in options.keys():
+#                     _ikw.update({_key: options[_key]})
+#             super().__init__(**_ikw)
+#             if isinstance(self._event_hash, str):
+#                 self._in.event_hash=self._event_hash
+
+#         # If phasemarker is provided
+#         elif isinstance(phase_marker, PhaseMarker):
+#             # If it is already an ArrivalMarker, return input unaltered
+#             if isinstance(phase_marker, ArrivalMarker):
+#                 return phase_marker
+#             if len(phase_marker.nslc_ids) != 1:
+#                 raise AttributeError(f'Can only convert single-entry nslc_ids PhaseMarkers. This has {len(phase_marker.nslc_ids)} nslc_ids entries')
+#             super().__init__(
+#                 nslc_ids=phase_marker.nslc_ids,
+#                 tmin=phase_marker.tmin,
+#                 tmax=phase_marker.tmax,
+#                 kind=phase_marker.kind,
+#                 event=phase_marker._event,
+#                 event_hash=phase_marker._event_hash,
+#                 event_time=phase_marker._event_time,
+#                 automatic=phase_marker._automatic,
+#                 incidence_angle=phase_marker._incidence_angle,
+#                 takeoff_angle=phase_marker._takeoff_angle,
+#                 polarity=phase_marker._polarity
+#             )
+#             n, s, l, c = self.nslc_ids[0]
+#             if l == '':
+#                 _l = '  '
+#             else:
+#                 _l = l
+#             values={
+#                 'net': n,
+#                 'sta': s,
+#                 'location': _l,
+#                 'seedchan': c,
+#                 'channel': c,
+#                 'datetime': 0.5*(self.tmin + self.tmax),
+#                 'event_hash': self.get_event_hash(),
+#                 'fm': polarity2fm(self.get_polarity()),
+#                 'iphase': self.get_phasename(),
+#                 'ema': self._incidence_angle,
+#             }
+#             if not self._automatic:
+#                 if self.kind != 0 and self.phasename is not None:
+#                     values.update({'rflag': 'h'})
+#                 elif self.kind == 0 and self.phasename is not None:
+#                     values.update({'rflag': 'i'})
+#                     self._automatic=True
+#                 else:
+#                     self._automatic=True
+            
+#             self._in = ANSSArrival(values=values)
+#         # Mark all fields as not updated
+#         self._updated = {_k: False for _k in self._in.keys()}
+    
+    # def set_event_hash(self, event_hash):
+    #     self.check_updates()
+    #     super().set_event_hash(event_hash)
+
+    # def set_phasename(self, phasename):
+    #     self.check_updates()
+    #     super().set_phasename(phasename)
+    
+    # def set_polarity(self, polarity):
+    #     self.check_updates()
+    #     super().set_polarity(polarity)
+
+    # # FIXME: Convert this to a __setattr__ at some point.
+    # def check_updates(self):
+    #     if not hasattr(self, '_updated'):
+    #         return
+        
+    #     # Check datetime
+    #     if self._in.datetime == 0.5*(self.tmin + self.tmax):
+    #         # If matched, ensure that datetime does not show as alteration
+    #         self._updated.datetime=False
+    #         # If arid was modified, revert
+    #         if self._updated.arid != self._in.arid:
+    #             self._updated.arid = False
+    #         # If orid was modified, revert
+    #         if self._updated.orid != self._in.orid:
+    #             self._updated.orid = False
+    #     # Enforce several updates reflecting that this marker no longer
+    #     # represents the same NSLC+T entry
+    #     else:
+    #         self._updated.datetime = 0.5*(self.tmin + self.tmax)
+    #         if self._in.rflag.lower() not in ['h','f']:
+    #             self._updated.rflag='h'
+    #         if self._in.arid is not None:
+    #             self._updated.arid=None
+    #         if self._in.orid is not None:
+    #             self._updated.orid=None
+
+    #     # Phase label update
+    #     if self._phasename != self._in.iphase:
+    #         self._updated.iphase = self._phasename
+    #     # Reset clause
+    #     elif self._updated.iphase:
+    #         self._updated.iphase = False
+
+    #     # Polarity update check
+    #     if polarity2fm(self._polarity) != self._in.fm:
+    #         self._updated.fm = polarity2fm(self._polarity)
+    #     # Reset clause
+    #     elif self._updated.fm:
+    #         self._updated.fm = False
+
+    #     # Kind check for rflag
+    #     if self.kind != 0:
+    #         # If marker KIND is paired with any changes in phase label, polarity, or time
+    #         # elevate to 'h'
+    #         if any([self._updated.iphase, self._updated.fm, self._updated.datetime]):
+    #             if self._in.rflag.lower() != 'h':
+    #                 self._updated.rflag='h'
+    #         # If not, but label color is changed on an 
+    #         elif self._automatic and self._updated.rflag.lower() != 'i':
+    #             self._updated.rflag='i'
+
 
 class OriginMarker(EventMarker):
-    def __init__(self, event_marker=None, **options):
-        if event_marker is None:
-            # If an event is provided, scrape that first
-            if 'event' in options.keys():
-                if isinstance(options['event'], Event):
-                    self._in = ANSSOrigin(options['event'])
-                    super().__init__(event=options['event'],
-                                    )
-                else:
-                    options.pop('event')
-            else:
-                self._in = ANSSOrigin(options)
-        # If an OriginMarker is provided, do nothing
-        elif isinstance(event_marker, OriginMarker):
-            return event_marker
-        # If an event marker is provided, scrape data and run update
-        elif isinstance(event_marker, EventMarker):
-            super().__init__(event=event_marker._event,
-                             kind=event_marker.kind,
-                             event_hash=event_marker._event.get_hash()
-                             )
-            self._in = ANSSOrigin(event=event_marker._event)
-            
-            
-
-
+    def __init__(self, **kwargs):
+        self._in = ANSSOrigin()
+        for _k, _v in kwargs.items():
+            if _k in self._in.keys():
+                self._in.update({_k:_v})
+        event = Event(
+            lat=self._in.lat,
+            lon=self._in.lon,
+            depth=self._in.depth,
+            catalog=self._in.auth,
+            time=self._in.datetime,
+            name=f'{self._in.auth.lower()}{self._in.evid} ({self._in.etype})',
+            extras = kwargs
+        )
+        self._in.event_hash = event.get_hash()
+        super().__init__(event=event, kind=0, event_hash=self._in.event_hash)
+    
+        self._event_hash = self._event.get_hash()
+        self._updated = AttribDict({_k: False for _k in self._in.keys()})
+    
 
 
 class ANSS_PostgreSQL_Client(Snuffling):
@@ -490,7 +511,7 @@ class ANSS_PostgreSQL_Client(Snuffling):
     # Snuffling.set_have_pile_changed_hook(True)
 
 
-    def __init__(self, dbname='my_anss_pgdb', user='browser', port=5432, host='localhost',password=None):
+    def __init__(self, dbname=None, user=None, port=None, host=None,password=None):
         # Compose connection kwargs
         self.pgkw = {'dbname': dbname,
                      'dbuser': user,
@@ -509,9 +530,9 @@ class ANSS_PostgreSQL_Client(Snuffling):
     
     def setup(self):
         # Provide display name
-        self.set_name("ANSS PostgreSQL Catalog Viewer")
+        self.set_name("ANSS PostgreSQL Catalog Interface")
         # Auto-update by default
-        self.set_live_update(True)
+        self.set_live_update(False)
 
         # Add Preferred Origins Only Switch
         self.add_parameter(
@@ -600,6 +621,7 @@ class ANSS_PostgreSQL_Client(Snuffling):
                 choices=subsrcs
             )
         )
+        self.client = Client("IRIS")
 
 
     def get_current_etypes(self):
@@ -733,11 +755,28 @@ class ANSS_PostgreSQL_Client(Snuffling):
             # Skip if the ORID has already been loaded
             if orid in self._orid2hash.keys():
                 continue
-            # Otherwise compose as an origin marker
-            omark = OriginMarker(orid=orid, **eorow.to_dict())
 
-            self._orid2hash.update({orid: omark.get_event_hash()})
-            self._hash2orid.update({omark.get_event_hash(): orid})
+            # omark = OriginMarker(orid=orid, **eorow.to_dict())
+            extras = eorow.to_dict()
+            extras.update({'orid': int(orid)})
+            event = Event(
+                lat=eorow.lat,
+                lon=eorow.lon,
+                depth=eorow.depth,
+                time=eorow.datetime,
+                catalog=eorow.auth,
+                name=f'{eorow.auth.lower()}{eorow.evid} ({eorow.etype})',
+                extras=extras
+            )
+            ehash = event.get_hash()
+            omark = EventMarker(event=event,
+                                kind=rflag2kind(eorow.rflag),
+                                event_hash=ehash)
+            if omark._event_hash is None:
+                omark.get_event_hash()
+            self._orid2hash.update({orid: omark._event_hash})
+            self._hash2orid.update({omark._event_hash: orid})
+            # print(self._orid2hash)
             markers.append(omark)
             self._cached_event_markers.append(omark)
 
@@ -756,15 +795,17 @@ class ANSS_PostgreSQL_Client(Snuffling):
             if phase_markers == []:
                 print(f'loading ORID {active_event._event.extras["orid"]} arrivals from database')
                 phase_markers = self.load_assocated_arrials(active_event)
+                print(f'loading {len(phase_markers)} phase markers')
                 self.add_markers(phase_markers)
             # else:
                 # print('arrivals already loaded')
 
     def load_assocated_arrials(self, event_marker):
+        # print(f'ORIGIN MARKER HASH: {event_marker.get_event_hash()}')
         orid = self._hash2orid[event_marker.get_event_hash()]
         sql = """
         SELECT 
-            x.orid, 
+            x.orid,
             a.arid,
             TrueTime.getEpoch(a.datetime, 'UNIX') AS datetime,
             a.net,
@@ -776,16 +817,51 @@ class ANSS_PostgreSQL_Client(Snuffling):
             a.quality,
             a.fm,
             a.rflag, 
-            a.lddate,
-
+            a.lddate 
         FROM assocaro x INNER JOIN arrival a ON x.arid = a.arid 
             WHERE x.orid = %(orid)s;
         """
         df_aa = pd.read_sql(sql, self.engine, params={'orid': int(orid)})
+
+        bulk = []
+        # print(df_aa)
         markers = []
-        for arid, arow in df_aa.iterrows():
-            ehash = event_marker.get_event_hash()
-            amark = ANSSArrival(event_hash=ehash, arid=arid, **arow)
+        for _, arow in df_aa.iterrows():
+            ehash = event_marker._event.get_hash()
+            # amark = ArrivalMarker(event_hash=ehash, **arow)
+            if arow.location == '  ':
+                _loc=''
+            else:
+                _loc=arow.location
+            kind = rflag2kind(arow.rflag)
+            if kind == 3:
+                kind = 2
+            
+            # nslc = '.'.join([arow.net, arow.sta, _loc, arow.seedchan])
+            # if nslc not in self._inv.get_contents()['channels']:
+            #     try:
+            #         _inv = self.client.get_stations(network=arow.net,
+            #                                         station=arow.station,
+            #                                         location=_loc,
+            #                                         channel=arow.seedchan,
+            #                                         level='channel')
+                    
+            # req = (arow.net, arow.sta)
+
+            amark = PhaseMarker(
+                nslc_ids=((arow.net, arow.sta, _loc, arow.seedchan),),
+                tmin=arow.datetime,
+                tmax=arow.datetime,
+                phasename=arow.iphase,
+                automatic=arow.rflag in ['a','i'],
+                kind=kind,
+                event_hash=ehash,
+                event=event_marker._event,
+                polarity=fm2polarity(arow.fm)
+            )
+            # TODO: Needs the event to associate, can't just cheat with the event_hash
+            # amark._in = arow.to_dict()
+            # print(f'ARRIVAL MARKER HASH: {amark._event_hash}')
             markers.append(amark)
         return markers
 
@@ -808,7 +884,7 @@ class ANSS_PostgreSQL_Client(Snuffling):
                 if self.prefor_only and m._event.extras['selectflag'] == 0:
                     continue
                 # Filter for catalog
-                if self.auth != 'all' and m._event.catalog != self.auth:
+                if self.auth != 'all' and m._event.extras['auth'] != self.auth:
                     continue
                 # Filter for subsource
                 if self.subsource != 'all' and m._event.extras['subsource'] != self.subsource:
@@ -823,4 +899,11 @@ class ANSS_PostgreSQL_Client(Snuffling):
         )
 
 def __snufflings__():
-    return [ANSS_PostgreSQL_Client()]
+    return [
+        ANSS_PostgreSQL_Client(
+            dbname='tahoma',
+            user='browser',
+            port=5445,
+            host='localhost',
+            password=None)
+            ]
