@@ -339,13 +339,13 @@ class ANSS_Catalog_Inspector(Snuffling):
         if active_event is not None:
             if phase_markers == []:
                 phase_markers = self.load_arrivals(active_event)
-                self._cached_phase_markers[active_event.get_event_hash()] += phase_markers
+                # self._cached_phase_markers[active_event.get_event_hash()] += phase_markers
                 self.add_markers(phase_markers)
         if active_event.active:
             # print(f'checking for alterations to {len(phase_markers)} active phase markers')
-            for m in phase_markers:
-                if any(_v for _v in m.check_for_alterations().values()):
-                    print(f'{".".join(m.one_nslc())} | {m.check_for_alterations()}')
+            # for m in phase_markers:
+            #     if any(_v for _v in m.check_for_alterations().values()):
+            #         print(f'{".".join(m.one_nslc())} | {m.check_for_alterations()}')
             active_event.compose_sql(phase_markers=phase_markers)
                 # for _k, _v in m.check_for_alterations().items():
                 #     if _v:
@@ -422,11 +422,11 @@ from obspy import UTCDateTime
 from warnings import WarningMessage
 
 class RestrictedAttribDict(AttribDict):
-    primary_keys = ()
-    foreign_keys = ()
+    primary_keys = []
+    foreign_keys = []
     def __init__(self, tablename, **options):
         super().__init__({_k:_v for _k, _v in options.items()})
-        self.tablename=tablename
+        # self.tablename=tablename
         # self._initial = AttribDict({_k:_v for _k, _v in self.copy().items()})
 
     def __setattr__(self, key, value):
@@ -440,7 +440,7 @@ class RestrictedAttribDict(AttribDict):
     def copy(self):
         return deepcopy(self)
     
-    def compose_sql_insert(self):
+    def compose_sql_insert(self, tablename):
         _subset = {_k: self.copy()[_k] for _k in self.defaults.keys() if self[_k] != self.defaults[_k]}
         if len(_subset) == 0:
             return
@@ -458,18 +458,18 @@ class RestrictedAttribDict(AttribDict):
                 _subset.pop(_k)
 
         sql = f"""
-        INSERT INTO {self.tablename} 
+        INSERT INTO {tablename} 
             ({', '.join([_e for _e in _subset.keys()])}) 
         VALUES 
             ({', '.join([str(_e) for _e in _subset.values()])});
         """
         return sql
     
-    def compose_sql_update(self, alterations={}):
+    def compose_sql_update(self, tablename, alterations={}):
         _subset = {_k: _v for _k, _v in alterations.items() if _k in self.defaults.keys()}
 
         sql = f"""
-        UPDATE {self.tablename} 
+        UPDATE {tablename} 
         SET ({', '.join([_e for _e in alterations.keys()])}) 
         = ({', '.join([_e for _e in alterations.values()])}) 
         WHERE {' AND '.join([f'{_k} = {self[_k]}' for _k in self.primary_keys])};
@@ -479,7 +479,7 @@ class RestrictedAttribDict(AttribDict):
 
 
 class ANSSEvent(RestrictedAttribDict):
-
+    primary_keys=['evid','prefor']
     defaults = {
         'evid': "nextval('evseq')",
         'prefor': "nextval('orseq')",
@@ -514,8 +514,8 @@ class ANSSEvent(RestrictedAttribDict):
             return f'{self.auth.lower()}{self.evid:d} ({self.etype})'
 
 class ANSSOrigin(RestrictedAttribDict):
-    primary_keys=('orid')
-    foreign_keys=('evid')
+    primary_keys=['orid']
+    foreign_keys=['evid','prefmag','prefmec']
     defaults = {
         'orid': -999,
         'evid': None,
@@ -575,7 +575,7 @@ class ANSSOrigin(RestrictedAttribDict):
     #         super().__setattr__(key, value)
 
 class ANSSAssocaro(RestrictedAttribDict):
-    foreign_keys=('orid','arid')
+    foreign_keys=['orid','arid']
     defaults = {
         'orid': None,
         'arid': None,
@@ -607,7 +607,7 @@ class ANSSAssocaro(RestrictedAttribDict):
     #         super().__setattr__(key, value)
 
 class ANSSArrival(RestrictedAttribDict):
-    primary_keys=('arid')
+    primary_keys=['arid']
     defaults = {
         'arid': None,
         'commid': None,
@@ -633,7 +633,7 @@ class ANSSArrival(RestrictedAttribDict):
         'delinc': None,
         'delaz': None,
         'delslo': None,
-        'qulity': None,
+        'quality': None,
         'snr': None,
         'rflag': 'a',
     }
@@ -665,8 +665,8 @@ class ANSSArrival(RestrictedAttribDict):
             return None
         
 class ANSSNetmag(RestrictedAttribDict):
-    primary_keys=('magid')
-    foreign_keys=('orid')
+    primary_keys=['magid']
+    foreign_keys=['orid']
     defaults = {
         'magid': None,
         'orid': None,
@@ -777,6 +777,8 @@ class ANSSEventMarker(EventMarker):
         associated = []
         for m in phase_markers:
             if m._event_hash == self._event_hash:
+                if not isinstance(m, ANSSPhaseMarker):
+                    m = phase2anss(m)
                 associated.append(m)
         # If no changes to the event
         if not any(changes.values()):
@@ -793,7 +795,7 @@ class ANSSEventMarker(EventMarker):
                 elif len(associated) != self._pg_origin.totalarr:
                     new_origin = True
                 # if there is a change in S-wave phase count - create new origin
-                elif sum([p.phasename=='S' for p in associated]) != self._pg_origin.nbs:
+                elif sum([p._phasename=='S' for p in associated]) != self._pg_origin.nbs:
                     new_origin = True
 
             else:
@@ -806,17 +808,25 @@ class ANSSEventMarker(EventMarker):
             else:
                 new_event = False
 
+        sql = "BEGIN TRANSACTION;\n"
+        # if new_event:
+        sql += self._pg_event.compose_sql_insert('event')
+        sql += self._pg_origin.compose_sql_insert('origin')
+        # sql += self._pg_netmag.compose_sql_insert('netmag')
+        for p in associated:
+            sql += p._pg_arrival.compose_sql_insert('arrival')
+            sql += p._pg_assocaro.compose_sql_insert('assocaro')
+        print(sql)
 
-        if new_event:
-            sql = "BEGIN TRANSACTION;\n"
-            sql += self._pg_event.compose_sql_insert()
-            sql += self._pg_origin.compose_sql_insert()
-            sql += self._pg_netmag.compose_sql_insert()
-            for p in associated:
-                sql += p._pg_arrival.compose_sql_insert()
-                sql += p._pg_assocaro.compose_sql_insert()
-            print(sql)
-            
+        # elif new_origin:
+        #     sql += self._pg_origin.compose_sql_insert()
+        #     for p in associated:
+        #         if p._pg_arrival.arid is None:
+        #             sql += p._pg_arrival.compose_sql_insert()
+        #             sql += p._pg_assocaro.compose_sql_insert()
+        #         else:
+        #             sql += p._pg_arrival.compose_sql_update()
+        #             sql += p._pg_assocaro.compose_sql_update()
         # if new_event:
             
 
@@ -1005,13 +1015,13 @@ class ANSSPhaseMarker(PhaseMarker):
 def phase2anss(phasemarker, **options):
     assert isinstance(phasemarker, PhaseMarker)
     datetime = 0.5*(phasemarker.tmin + phasemarker.tmax)
-    iphase = phasemarker.phasename
+    iphase = phasemarker._phasename
     net, sta, location, channel = phasemarker.one_nslc()
     if location == '':
         location = '  '
-    if phasemarker.automatic is None:
+    if phasemarker._automatic is None:
         rflag='h'
-    elif phasemarker.automatic:
+    elif phasemarker._automatic:
         rflag='a'
     else:
         rflag='i'
